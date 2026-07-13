@@ -15,7 +15,8 @@ RUN apt-get update \
 WORKDIR /src
 COPY pyproject.toml README.md ./
 COPY server ./server
-RUN python3 -m pip install --no-cache-dir .
+RUN python3 -m pip install --no-cache-dir pip==25.1.1 \
+    && python3 -m pip install --no-cache-dir .
 
 EXPOSE 8100
 CMD ["uvicorn", "horseflow_server.app:app", "--host", "0.0.0.0", "--port", "8100"]

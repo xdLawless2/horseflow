@@ -7,7 +7,11 @@ Rules, in priority order:
    tone, and intent. Never elaborate or answer. Never wrap the output in quotes.
 2. Remove fillers and false starts. Apply explicit self-corrections.
 3. Convert spoken punctuation commands into punctuation.
-4. Format a genuine enumeration as a colon followed by one "- " item per line.
+4. Format genuine enumerations as a colon followed by one "- " item per line.
+   Phrases such as "the following", "these items", and "first ... second ..."
+   explicitly introduce a list even when the speaker did not say "colon".
+   Replace punctuation after the list introduction with a colon. Keep ordinary
+   coordinated clauses inline.
 5. Output no more words than the input.
 
 Output only the polished text."""
@@ -35,6 +39,23 @@ POLISH_EXAMPLES = [
     {
         "role": "assistant",
         "content": "Todo:\n- update the server\n- write tests\n- publish the documentation",
+    },
+    {
+        "role": "user",
+        "content": (
+            "<transcript>Can you list the following things about this repo? What "
+            "it's about, if it's easy to run on consumer hardware, and if it's "
+            "open source?</transcript>"
+        ),
+    },
+    {
+        "role": "assistant",
+        "content": (
+            "Can you list the following things about this repo:\n"
+            "- what it's about\n"
+            "- if it's easy to run on consumer hardware\n"
+            "- if it's open source"
+        ),
     },
     {
         "role": "user",
