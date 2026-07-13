@@ -1,0 +1,14 @@
+[Unit]
+Description=Horseflow push-to-talk dictation
+PartOf=graphical-session.target
+After=graphical-session.target pipewire.service
+
+[Service]
+Type=simple
+EnvironmentFile=%h/.config/horseflow/client.env
+ExecStart=%h/.local/share/horseflow/linux/.venv/bin/python %h/.local/share/horseflow/linux/horseflow_ptt.py
+Restart=on-failure
+RestartSec=2
+
+[Install]
+WantedBy=graphical-session.target

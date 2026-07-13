@@ -1,0 +1,44 @@
+services:
+  ollama:
+    image: ollama/ollama:0.31.2
+    runtime: nvidia
+    environment:
+      NVIDIA_VISIBLE_DEVICES: ${HORSEFLOW_GPU}
+      OLLAMA_KEEP_ALIVE: -1
+    volumes:
+      - ${HORSEFLOW_OLLAMA_MODELS}:/root/.ollama
+    restart: unless-stopped
+
+  api:
+    build:
+      context: ..
+      dockerfile: server/Dockerfile
+    runtime: nvidia
+    environment:
+      NVIDIA_VISIBLE_DEVICES: ${HORSEFLOW_GPU}
+      OLLAMA_URL: http://ollama:11434
+      HORSEFLOW_LLM_MODEL: ${HORSEFLOW_LLM_MODEL}
+      HORSEFLOW_ASR_MODEL: ${HORSEFLOW_ASR_MODEL}
+      HORSEFLOW_LANGUAGE: ${HORSEFLOW_LANGUAGE}
+      HORSEFLOW_COMPUTE_TYPE: ${HORSEFLOW_COMPUTE_TYPE}
+      HORSEFLOW_DICTIONARY: ${HORSEFLOW_DICTIONARY}
+      HORSEFLOW_ASR_PROMPT: ${HORSEFLOW_ASR_PROMPT}
+    volumes:
+      - ${HORSEFLOW_ASR_MODELS}:/models
+    ports:
+      - ${HORSEFLOW_BIND_ADDRESS}:8100:8100
+    depends_on:
+      - ollama
+    restart: unless-stopped
+    healthcheck:
+      test:
+        - CMD
+        - python3
+        - -c
+        - >-
+          import urllib.request;
+          urllib.request.urlopen("http://127.0.0.1:8100/health", timeout=2)
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 120s

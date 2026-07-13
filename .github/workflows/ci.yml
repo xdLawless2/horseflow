@@ -1,0 +1,28 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  python:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+        with:
+          python-version: "3.11"
+      - run: uv sync --frozen
+      - run: uv run ruff check .
+      - run: uv run pytest
+      - run: python -m py_compile clients/linux/horseflow_ptt.py
+      - run: bash -n clients/linux/install.sh clients/linux/uninstall.sh
+      - run: cp deploy/.env.example deploy/.env
+      - run: docker compose -f deploy/compose.yaml config
+
+  macos:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: make -C clients/macos clean build
+      - run: bash -n clients/macos/install.sh clients/macos/uninstall.sh

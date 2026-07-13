@@ -1,0 +1,46 @@
+[build-system]
+requires = ["setuptools>=80"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "horseflow"
+version = "0.1.0"
+description = "Self-hosted push-to-talk dictation with local speech recognition and LLM cleanup"
+readme = "README.md"
+requires-python = ">=3.10"
+license = "MIT"
+dependencies = [
+    "fastapi==0.139.0",
+    "faster-whisper==1.2.1",
+    "httpx==0.28.1",
+    "librosa==0.11.0",
+    "numpy==2.2.6",
+    "python-multipart==0.0.32",
+    "soundfile==0.14.0",
+    "uvicorn[standard]==0.50.0",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=8.4,<9",
+    "ruff>=0.12,<1",
+]
+
+[project.scripts]
+horseflow-server = "horseflow_server.app:run"
+
+[tool.setuptools]
+package-dir = {"" = "server"}
+
+[tool.setuptools.packages.find]
+where = ["server"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM"]

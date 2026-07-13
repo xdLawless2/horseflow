@@ -1,0 +1,14 @@
+.DS_Store
+.env
+.idea/
+.pytest_cache/
+.ruff_cache/
+.venv/
+.vscode/
+__pycache__/
+*.egg-info/
+*.log
+*.py[cod]
+build/
+dist/
+clients/macos/build/
