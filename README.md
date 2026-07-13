@@ -42,7 +42,7 @@ nvidia-smi --query-gpu=uuid,name --format=csv
 Edit `.env`. Set:
 
 - `HORSEFLOW_GPU` to the selected GPU UUID
-- `HORSEFLOW_BIND_ADDRESS` to localhost or a private interface address
+- `HORSEFLOW_BIND_ADDRESS` to `127.0.0.1`
 - model storage paths
 - custom vocabulary and ASR context
 
@@ -56,6 +56,18 @@ curl http://127.0.0.1:8100/health
 ```
 
 The API documentation is available at `/docs`.
+
+## Run the server and clients on different machines
+
+Use Tailscale Serve to expose the localhost-bound API as a stable, tailnet-only
+HTTPS endpoint. Linux and macOS clients can use the same endpoint:
+
+```text
+https://horseflow-server.example-tailnet.ts.net/dictate
+```
+
+Follow the complete [cross-machine Tailscale setup](docs/tailscale.md). Do not
+bind Horseflow publicly or use Tailscale Funnel.
 
 ## Linux client
 
@@ -107,7 +119,8 @@ a synthetic Command+V.
 ### Install
 
 ```bash
-clients/macos/install.sh http://server-address:8100/dictate
+clients/macos/install.sh \
+  https://horseflow-server.example-tailnet.ts.net/dictate
 ```
 
 macOS will require Horseflow access under:

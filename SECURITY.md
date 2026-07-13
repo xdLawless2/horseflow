@@ -6,14 +6,13 @@ Horseflow intentionally has no authentication or TLS termination. The API can
 receive microphone audio and consume GPU resources, so it must not be exposed
 directly to the public internet.
 
-Bind the Compose port to one of:
+Bind the Compose port to `127.0.0.1`. For cross-machine access, use Tailscale
+Serve as documented in [docs/tailscale.md](docs/tailscale.md). Serve provides a
+tailnet-only HTTPS endpoint while leaving the container inaccessible from the
+LAN and public internet.
 
-- `127.0.0.1`
-- A private LAN address protected by a firewall
-- A private overlay-network address such as Tailscale
-
-Use a reverse proxy with authentication and TLS if access outside a trusted
-private network is required.
+Do not use Tailscale Funnel for Horseflow. Funnel would make the unauthenticated
+API publicly reachable.
 
 ## Client privileges
 
