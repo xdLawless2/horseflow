@@ -41,10 +41,10 @@ jobs:
           Singular -q jc2-72108/linear_edge_lex_QQ.sing \
             | tee jc2-72108/linear_edge_lex_QQ.log
           grep -q '^L\[17\]=' jc2-72108/linear_edge_lex_QQ.log
-      - name: Derive saturated reduced branch
+      - name: Derive saturated reduced branch over QQ
         run: |
           set -euo pipefail
-          python jc2-72108/model_linear_reduced.py \
+          python jc2-72108/model_linear_reduced_rational.py \
             --basis jc2-72108/linear_edge_lex_QQ.log \
             --branch ${{ matrix.branch }}
           test -s jc2-72108/linear_reduced_${{ matrix.branch }}_QQ.sing
