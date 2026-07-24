@@ -1,0 +1,80 @@
+name: JC2 72-108 exact reduced certificates
+
+on:
+  push:
+    branches: [jc2-72108-certificates]
+  workflow_dispatch:
+
+concurrency:
+  group: jc2-72108-reduced-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  exact-branch:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 360
+    strategy:
+      fail-fast: false
+      matrix:
+        branch: ["1_3", "2_5", "3_7"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - name: Install exact CAS dependencies
+        run: |
+          set -euo pipefail
+          python -m pip install --disable-pip-version-check sympy==1.14.0
+          sudo apt-get update -qq
+          sudo DEBIAN_FRONTEND=noninteractive apt-get install -y singular
+          Singular --version
+      - name: Derive top-edge field from the Proposition 4.3 model
+        run: |
+          set -euo pipefail
+          python jc2-72108/model_linear_edge.py
+          Singular -q jc2-72108/linear_edge_lex_QQ.sing \
+            | tee jc2-72108/linear_edge_lex_QQ.log
+          grep -q '^L\[17\]=' jc2-72108/linear_edge_lex_QQ.log
+      - name: Derive saturated reduced branch
+        run: |
+          set -euo pipefail
+          python jc2-72108/model_linear_reduced.py \
+            --basis jc2-72108/linear_edge_lex_QQ.log \
+            --branch ${{ matrix.branch }}
+          test -s jc2-72108/linear_reduced_${{ matrix.branch }}_QQ.sing
+          test -s jc2-72108/linear_reduced_${{ matrix.branch }}.json
+      - name: Compute unit basis and explicit lift cofactors
+        id: compute
+        continue-on-error: true
+        shell: bash
+        run: |
+          set -o pipefail
+          script=jc2-72108/linear_reduced_${{ matrix.branch }}_QQ.sing
+          log=jc2-72108/linear_reduced_${{ matrix.branch }}_QQ.log
+          timeout 330m Singular -q "$script" | tee "$log"
+          echo "singular_status=${PIPESTATUS[0]}" > jc2-72108/linear_reduced_${{ matrix.branch }}.status
+      - name: Upload exact branch certificate
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: jc2-linear-reduced-${{ matrix.branch }}-QQ
+          compression-level: 9
+          path: |
+            jc2-72108/linear_edge_lex_QQ.log
+            jc2-72108/linear_reduced_${{ matrix.branch }}_QQ.sing
+            jc2-72108/linear_reduced_${{ matrix.branch }}_QQ.log
+            jc2-72108/linear_reduced_${{ matrix.branch }}.json
+            jc2-72108/linear_reduced_${{ matrix.branch }}.status
+      - name: Require checked unit certificate
+        if: always()
+        run: |
+          set -euo pipefail
+          log=jc2-72108/linear_reduced_${{ matrix.branch }}_QQ.log
+          test "${{ steps.compute.outcome }}" = success
+          grep -q 'BRANCH ${{ matrix.branch }}: UNIT' "$log"
+          grep -q 'LIFT_CHECK: ZERO' "$log"
+          ! grep -q 'LIFT_CHECK: FAILURE' "$log"
