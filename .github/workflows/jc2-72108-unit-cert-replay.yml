@@ -2,7 +2,7 @@ name: JC2 72-108 unit certificate replay
 
 on:
   push:
-    branches: [jc2-72108-unit-cert-replay]
+    branches: [main, jc2-72108-unit-cert-replay]
   pull_request:
     branches: [main]
   workflow_dispatch:
