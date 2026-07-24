@@ -3,6 +3,8 @@ name: JC2 72-108 exact reduced certificates
 on:
   push:
     branches: [jc2-72108-certificates]
+  pull_request:
+    branches: [main]
   workflow_dispatch:
 
 concurrency:
